@@ -5,9 +5,6 @@ env:
   - TEST_SUITE=client
   - TEST_SUITE=server
 
-matrix:
-  allowed_failures:
-    - node_js: 8
 install:
   # This sets the context for the whole thing
   - cd $TEST_SUITE
@@ -18,3 +15,9 @@ cache: yarn
 script:
   - yarn build
   - yarn lint && yarn test
+
+jobs:
+  include:
+    - stage: deploy
+      env:
+      script: node -e 'console.log("deploy time!")'
