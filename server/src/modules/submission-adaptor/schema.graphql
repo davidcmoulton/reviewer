@@ -17,3 +17,165 @@ type Mutation {
   changeSubmissionTitle(id: ID!, title: String!): Submission!
   deleteSubmission(id: ID!): Boolean
 }
+
+type Alias {
+  name: Name
+  email: Email
+  aff: String
+  firstName: String
+  lastName: String
+}
+
+# I'm going to comment out the stuff we don't use (yet)
+type Manuscript implements Object {
+  id: ID!
+  created: DateTime!
+  updated: DateTime
+  # manuscriptVersions: [ManuscriptVersion]
+  files: [File]
+  fileStatus: String
+  teams: [Team]
+  # reviews: [Review]
+  status: String
+  suggestions: [ManuscriptSuggestion!]
+  lastStepVisited: String
+
+  # decision: String
+  
+  # Maybe split meta out into something more sensible?
+  meta: ManuscriptMeta
+
+  # Should this be a team? Or nah?
+  author: Alias
+
+  # This is the "CONTINUE_SUBMISSION" | "SUBMITTED"
+  clientStatus: String!
+  # todo: these should be handled through notes??
+  opposedSeniorEditorsReason: String
+  opposedReviewingEditorsReason: String
+  opposedReviewersReason: String
+
+  coverLetter: String
+  previouslyDiscussed: String
+  previouslySubmitted: [String!]
+  cosubmission: [String!]
+  submitterSignature: String
+  disclosureConsent: Boolean
+
+  # I don't think this is used
+  relatedManuscripts: [RelatedManuscript!]
+
+  # Another subresolver that gets the assignees, the `role` should be an enum
+  assignees(role: String!): [Assignee]
+}
+
+# TODO: This should be part of submission not the manuscript model
+input ManuscriptInput {
+  id: ID!
+  suggestedSeniorEditors: [ID]
+  opposedSeniorEditors: [ID]
+  opposedSeniorEditorsReason: String
+  suggestedReviewingEditors: [ID]
+  opposedReviewingEditors: [ID]
+  opposedReviewingEditorsReason: String
+  suggestedReviewers: [ReviewerAliasInput]
+  opposedReviewers: [OpposedReviewerInput]
+  opposedReviewersReason: String
+  coverLetter: String
+  author: AuthorAliasInput
+  previouslyDiscussed: String
+  previouslySubmitted: [String]
+  cosubmission: [String!]!
+  submitterSignature: String
+  disclosureConsent: Boolean
+  meta: ManuscriptMetaInput
+  lastStepVisited: String
+}
+
+type ManuscriptMeta {
+  title: String!
+  articleType: String
+  articleIds: [ArticleId]
+  abstract: String
+  subjects: [String]
+  history: [MetaDate]
+  publicationDates: [MetaDate]
+
+  # This is not used?
+  notes: [Note]
+}
+
+input ManuscriptMetaInput {
+  title: String
+  articleType: String
+  subjects: [String]
+}
+
+type ManuscriptSuggestion {
+  fieldName: String!
+  suggestions: [SuggestionDetail!]!
+}
+
+type ManuscriptVersion implements Object {
+  id: ID!
+  created: DateTime!
+  updated: DateTime
+  files: [File]
+  tneams: [Team]
+  # reviews: [Review]
+  status: String
+  lastStepVisited: String
+  decision: String
+  meta: ManuscriptMeta
+}
+
+type MetaDate {
+  type: String
+  date: DateTime
+}
+
+# Just for the submission domain
+type Mutation {
+  createManuscript: Manuscript!
+  deleteManuscript(id: ID!): ID!
+  # We know the filesize on the UI
+  uploadManuscript(id: ID!, file: Upload!, fileSize: Int!): Manuscript!
+  updateSubmission(data: ManuscriptInput!): Manuscript!
+  submitManuscript(data: ManuscriptInput!): Manuscript!
+}
+
+type Team {
+  id: ID!
+  created: DateTime!
+  updated: DateTime
+  teamMembers: [TeamMember]
+  role: String
+  objectId: Object
+  objectType: String
+}
+
+type TeamMember {
+  user: User
+  status: String
+  alias: Alias
+  meta: TeamMemberMeta
+}
+
+union TeamMemberMeta = AuthorMetadata | ReviewerMetadata | EditorMetadata
+type AuthorMetadata {
+  rank: Int!
+  #  to be defined
+  # contributions: AuthorMetadataContribution!
+  corresponding: Boolean!
+  conflictOfInterest: String
+}
+type ReviewerMetadata {
+  rank: Int!
+  # Accounts for instances where a post-doc has helped review
+  coRelationship: [TeamMember]
+  conflictOfInterest: String
+  revealIdentity: Boolean!
+}
+type EditorMetadata {
+  elifePersonId: ID
+}
