@@ -17,27 +17,25 @@ script:
 stages:
   - name: Test
   - name: Build and Push Container
+  - name: Notify Slack
+  - name: Server Side
 
 jobs:
   include:
     - stage: Build and Push Container
-      name: "Build client container"
+      name: "Build Client Container"
       before_install: cd /$TRAVIS_BUILD_DIR/client
-      script: echo "docker build" $TRAVIS_TAG
+      script: 
+        - echo "docker build" $TRAVIS_TAG
+        - echo $TRAVIS_TEST_RESULT
+
     - stage: Build and Push Container
-      name: "Build server container"
+      name: "Build Server Container"
       before_install: cd /$TRAVIS_BUILD_DIR/server
-      script: echo "docker build" $TRAVIS_TAG
+      script: 
+       - echo "docker build" $TRAVIS_TAG
+       - echo $TRAVIS_TEST_RESULT
 
-
-
-      #
-      # jobs:
-      #   include:
-      #     - stage: docker_push
-      #       name: "Push to Docker Registry"
-      #       env:
-      #         - TEST_SUITE=client
-      #       script: 
-      #         - cd /$TRAVIS_BUILD_DIR
-      #         - node -e 'console.log("deploy time!")' $TEST_SUITE
+    - stage: Notify Slack
+      name: "Let slack know what's passed"
+      script: echo "notify slack"

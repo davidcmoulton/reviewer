@@ -23,4 +23,10 @@ describe('AppController', () => {
       expect(appController.sendHealthCheck(mockRes)).resolves.toEqual({code: 200, data: {ok: true}});
     });
   });
+
+  describe('it fails', () => {
+    it('fails', () => {
+      expect(2 + 2).toBe(5);
+    });
+  });
 });
