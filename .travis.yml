@@ -5,23 +5,44 @@ env:
   - TEST_SUITE=client
   - TEST_SUITE=server
 
-install:
-  # This sets the context for the whole thing
-  - cd $TEST_SUITE
-  - yarn
-
 cache: yarn
 
-script:
-  - yarn build
-  - yarn lint && yarn test
+stages:
+  - name: Lint
+  - name: TS Build
+    # - name: Unit Tests
+    # - name: Docker Build
+    # - name: Docker Push
 
 jobs:
   include:
-    - stage: deploy
-      env:
-        - TEST_SUITE=client
-        - TEST_SUITE=server
-      script: 
-        - cd $TEST_SUITE
-        - node -e 'console.log("deploy time!")' $TEST_SUITE
+    - stage: Lint
+      install: yarn
+      script: yarn lint
+    - stage: TS Build
+      before_install: cd client
+      install: yarn
+      script: yarn build
+    - stage: TS Build
+      before_install: cd server
+      install: yarn
+      script: yarn build
+
+
+
+      # script:
+      #   - cd /$TRAVIS_BUILD_DIR/$TEST_SUITE
+      #   - yarn
+      #   - yarn lint
+      #   - yarn build
+      #   - yarn test
+      #
+      # jobs:
+      #   include:
+      #     - stage: docker_push
+      #       name: "Push to Docker Registry"
+      #       env:
+      #         - TEST_SUITE=client
+      #       script: 
+      #         - cd /$TRAVIS_BUILD_DIR
+      #         - node -e 'console.log("deploy time!")' $TEST_SUITE
