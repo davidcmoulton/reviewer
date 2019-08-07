@@ -20,4 +20,8 @@ jobs:
   include:
     - stage: deploy
       env:
-      script: node -e 'console.log("deploy time!")'
+        - TEST_SUITE=client
+        - TEST_SUITE=server
+      script: 
+        - cd $TEST_SUITE
+        - node -e 'console.log("deploy time!")' $TEST_SUITE
