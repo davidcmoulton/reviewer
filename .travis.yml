@@ -2,32 +2,29 @@ language: node_js
 node_js:
   - 10
 env:
-  - TEST_SUITE=client ACTION=lint
-  - TEST_SUITE=client ACTION=build
-  - TEST_SUITE=client ACTION=test
-  - TEST_SUITE=server ACTION=lint
-  - TEST_SUITE=server ACTION=build
-  - TEST_SUITE=server ACTION=test
+  - TEST_SUITE=client
+  - TEST_SUITE=server
 
 cache: yarn
 
 script:
   - cd /$TRAVIS_BUILD_DIR/$TEST_SUITE
   - yarn
-  - yarn $ACTION
+  - yarn lint
+  - yarn build
+  - yarn test
 
 stages:
   - name: Test
-  - name: Build Container
-  - name: Push Container
+  - name: Build and Push Container
 
 jobs:
   include:
-    - stage: Build Container
+    - stage: Build and Push Container
       name: "Build client container"
       before_install: cd /$TRAVIS_BUILD_DIR/client
       script: echo "docker build" $TRAVIS_TAG
-    - stage: Build Container
+    - stage: Build and Push Container
       name: "Build server container"
       before_install: cd /$TRAVIS_BUILD_DIR/server
       script: echo "docker build" $TRAVIS_TAG
