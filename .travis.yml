@@ -2,11 +2,12 @@ language: node_js
 node_js:
   - 10
 env:
-  - TEST_SUITE=client
-  - TEST_SUITE=server
-  - ACTION=lint
-  - ACTION=build
-  - ACTION=test
+  - TEST_SUITE=client ACTION=lint
+  - TEST_SUITE=client ACTION=build
+  - TEST_SUITE=client ACTION=test
+  - TEST_SUITE=server ACTION=lint
+  - TEST_SUITE=server ACTION=build
+  - TEST_SUITE=server ACTION=test
 
 cache: yarn
 
@@ -16,6 +17,7 @@ script:
   - yarn $ACTION
 
 stages:
+  - name: Test
   - name: Build Container
   - name: Push Container
 
